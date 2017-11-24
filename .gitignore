@@ -1,0 +1,17 @@
+slides.pdf
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+.idea
+sources/react-ui/dist
+sources/react-ui/node_modules
+sources/react-ui/build
+*~
+\#*
+.stack-work/
+TAGS

@@ -1,0 +1,56 @@
+name: ioautomata
+version: 0.1.0
+license-file:         LICENSE
+author: Arnaud Bailly <arnaud.oqube@gmail.com>
+synopsis:  A library for expressing models as I/O Automata
+ghc-options: -Wall -Werror -fno-warn-orphans
+
+library:
+  source-dirs:
+    - src
+  dependencies:
+    - base
+    - containers
+    - data-default
+    - filepath
+    - directory
+    - QuickCheck
+    - fgl
+    - graphviz
+    - random
+    - mtl
+    - parsec
+    - utf8-string
+    - bytestring
+    - process
+    - network
+    - text
+  exposed-modules:
+    - IOAutomaton
+    - IOAutomaton.Generator
+  other-modules:
+    - IOAutomaton.IOAutomaton
+    - IOAutomaton.Graph
+  default-extensions:
+    - OverloadedStrings
+    - RecordWildCards
+    - ScopedTypeVariables
+
+tests:
+  hunit:
+    source-dirs:
+      - test
+      - examples
+    main: AllTests.hs
+    dependencies:
+      - base
+      - ioautomata
+      - wreq
+      - containers
+      - mtl
+      - random
+      - HUnit
+      - QuickCheck
+      - test-framework
+      - test-framework-hunit
+      - test-framework-quickcheck2

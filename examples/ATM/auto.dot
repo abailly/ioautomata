@@ -1,0 +1,18 @@
+digraph {
+graph [center=true];
+0 [style=bold];
+1;
+2;
+3;
+0 -> 1 [label="(EnterCard (Card {pin = Pin \"2345\", accountNo = Acc \"234567\", failedCode = 2}),OK)"];
+1 -> 2 [label="(EnterPinCode (Pin \"1234\"),OK)"];
+1 -> 0 [label="(Exit,Bye)"];
+1 -> 0 [label="(EnterPinCode (Pin \"5678\"),CardRetained)"];
+1 -> 1 [label="(EnterPinCode (Pin \"2345\"),FailedCode)"];
+2 -> 3 [label="(WithdrawMoney,OK)"];
+2 -> 0 [label="(Exit,OK)"];
+2 -> 2 [label="(GetBalance,Bal 2160)"];
+3 -> 2 [label="(Exit,OK)"];
+3 -> 2 [label="(EnterAmount 170,NotEnoughBalance)"];
+3 -> 2 [label="(EnterAmount 150,DeliverNotes)"];
+}
