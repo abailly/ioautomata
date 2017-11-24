@@ -6,7 +6,7 @@ module ATM.ATM where
 
 import           Control.Monad.State (StateT (..))
 import qualified Data.Map            as M
-import qualified IOAutomaton         as A
+import qualified IOAutomaton         as IOA
 
 type CardRetained = String
 
@@ -57,7 +57,7 @@ type Trans = (ATMState, ATMInput, ATMOutput, ATMState)
 
 type Path  = [ Trans ]
 
-type ATMMachine = A.Trace ATMState ATMInput ATMOutput
+type ATMMachine = IOA.Trace ATMState ATMInput ATMOutput
 
 exit :: AtmState -> (Maybe ATMOutput, AtmState)
 exit (Atm _ _ b) =  (Just Bye, Atm Init Nothing b)
@@ -69,7 +69,7 @@ enterCard _  s                                       = (Nothing, s { state = Sin
 
 enterPin :: Pincode -> AtmState -> (Maybe ATMOutput, AtmState)
 enterPin p (Atm EnteringPin (Just c@(Card p' _  _)) b) | p == p'   = (Just OK, Atm SelectingAction (Just c) b)
-enterPin _ (Atm EnteringPin (Just c@(Card _  _  f)) b) | f < 2     = (Just FailedCode, Atm EnteringPin (Just c') b)
+enterPin _ (Atm EnteringPin (Just c@(Card _  _  f)) b) | f < 3     = (Just FailedCode, Atm EnteringPin (Just c') b)
                                                        | otherwise = (Just CardRetained, Atm Init Nothing b)
                                                        where
                                                          c' = c { failedCode = failedCode c + 1}
@@ -106,7 +106,7 @@ action WithdrawMoney    = withdrawMoney
 action GetBalance       = getBalance
 action Exit             = exit
 
-instance A.IOAutomaton AtmState ATMState ATMInput ATMOutput where
+instance IOA.IOAutomaton AtmState ATMState ATMInput ATMOutput where
   init                = initAtm
   sink    _           = Sink
   input               = input
@@ -136,8 +136,8 @@ instance (Monad m) => ATM (StateT AtmState m) (Maybe ATMOutput) where
     enterCard'     c = StateT (return . enterCard c)
 
 
-evalATM :: (Monad m) => Trans -> StateT AtmState m Trans
-evalATM t = StateT (return . A.eval t)
+evalATM :: Trans -> StateT AtmState Maybe Trans
+evalATM t = StateT (IOA.eval t)
 
 isValidPath :: [Trans] -> Bool
 isValidPath []               = True

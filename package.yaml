@@ -10,24 +10,23 @@ library:
     - src
   dependencies:
     - base
+    - bytestring
     - containers
     - data-default
-    - filepath
+    - data-reify
     - directory
-    - QuickCheck
     - fgl
+    - filepath
     - graphviz
-    - random
     - mtl
     - parsec
-    - utf8-string
-    - bytestring
-    - process
-    - network
+    - QuickCheck
+    - random
     - text
   exposed-modules:
     - IOAutomaton
     - IOAutomaton.Generator
+    - IOAutomaton.Model
   other-modules:
     - IOAutomaton.IOAutomaton
     - IOAutomaton.Graph
@@ -35,6 +34,7 @@ library:
     - OverloadedStrings
     - RecordWildCards
     - ScopedTypeVariables
+    - MultiParamTypeClasses
 
 tests:
   hunit:
@@ -44,13 +44,13 @@ tests:
     main: AllTests.hs
     dependencies:
       - base
-      - ioautomata
-      - wreq
       - containers
-      - mtl
-      - random
+      - data-reify
       - HUnit
+      - ioautomata
+      - mtl
       - QuickCheck
+      - random
       - test-framework
       - test-framework-hunit
       - test-framework-quickcheck2

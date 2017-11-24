@@ -1,7 +1,9 @@
-{-# LANGUAGE AllowAmbiguousTypes    #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE RankNTypes             #-}
+{-# LANGUAGE AllowAmbiguousTypes        #-}
+{-# LANGUAGE DeriveFoldable             #-}
+{-# LANGUAGE FunctionalDependencies     #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE RankNTypes                 #-}
 module IOAutomaton.IOAutomaton (
                                 Trace(T),
                                 IOAutomaton(..),
@@ -12,8 +14,8 @@ module IOAutomaton.IOAutomaton (
                                 evalTrace, transition
                                 ) where
 
-import           Control.Monad.Identity
-import           Control.Monad.State    hiding (state)
+import           Control.Monad.State hiding (state)
+import           Data.Maybe
 
 -- | An IOAutomaton is a special kind of finite state automata.
 -- Formally, the kind of IOAutomaton that we use can be defined as a tuple
@@ -66,13 +68,14 @@ class (Eq q, Eq i, Eq o, Show q, Show i, Show o) =>
 -- |Evaluate a single transition given a certain Automaton
 -- This function relies on the underlying 'action' function to apply
 -- the transition's input to the current state.
-eval :: (IOAutomaton a q i o) => (q, i, o, q) -> a -> ((q, i, o, q), a)
-eval t@(s, _i, _o, _e) st | s == sink st = (t,st)
-eval   (s, i, o, _e)   st                = eval' (action i st)
+eval :: (IOAutomaton a q i o) => (q, i, o, q) -> a -> Maybe ((q, i, o, q), a)
+eval t@(s, _i, _o, _e) st | s == sink st  = Just (t,st)
+eval (s, i, o, _e)   st   | state st == s = eval' (action i st)
+                          | otherwise     = Nothing
      where
        eval' v = case v of
-         (Just o', st')  -> ((s, i ,o', state st'), st')
-         (Nothing, st' ) -> ((s, i ,o, sink st'), st')
+         (Just o', st')  -> Just ((s, i ,o', state st'), st')
+         (Nothing, st' ) -> Just ((s, i ,o, sink st'), st')
 
 -- | Injects action into State transformer monad.
 -- Given a transition, it is applied in the context of a StateT monad
@@ -86,10 +89,10 @@ actionST (_s, i, _o ,_e) = StateT (return . action i)
 -- | Evaluate a transition within a State transformer.
 -- The state of the StateT monad is the underlying automaton and
 -- the result of running the eval inside the monad is another transition
-evalST :: (Monad m, IOAutomaton a q i o) =>
+evalST :: (IOAutomaton a q i o) =>
           (q, i, o, q) ->
-          StateT a  m (q, i, o, q)
-evalST t = StateT (return . eval t)
+          StateT a  Maybe (q, i, o, q)
+evalST t = StateT (eval t)
 
 transition :: q -> (i,o,q) -> (q,i,o,q)
 transition st (i,o,f) = (st, i, o , f)
@@ -97,7 +100,8 @@ transition st (i,o,f) = (st, i, o , f)
 -- |Traces over an automaton.
 -- A trace is simply a sequence of transitions.
 newtype Trace q i o =  T [ (q, i, o ,q) ]
-    deriving (Show, Eq)
+    deriving (Show, Eq, Foldable)
+
 
 -- | Executes a complete trace in a given automaton within the StateT transformer monad.
 -- The trace is run over some initial state and produces a final state and a result which
@@ -122,6 +126,4 @@ evalTrace :: (IOAutomaton a q i o) =>
             Trace q i o  ->
             a ->
             Trace q i o
-evalTrace (T transitions) = T . evalState (mapM (StateT . idEval) transitions)
-                            where
-                              idEval a = Identity . eval a
+evalTrace (T transitions) = T . fromMaybe [] . evalStateT (mapM (StateT . eval) transitions)
