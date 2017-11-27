@@ -16,7 +16,8 @@ and the latter to validate the client.
 -}
 module IOAutomaton.Model where
 
-import           IOAutomaton
+import           IOAutomaton.Generator
+import           IOAutomaton.IOAutomaton
 import           Prelude
 import           Test.QuickCheck
 import           Test.QuickCheck.Monadic
