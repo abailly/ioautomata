@@ -9,7 +9,7 @@ import           Control.Monad.State    hiding (state)
 import qualified Data.Map               as M
 import           Data.Monoid            ((<>))
 import           IOAutomaton            hiding (state)
-import           IOAutomaton.Model
+import           IOAutomaton.Model      ()
 import           Test.HUnit
 import           Test.QuickCheck
 
