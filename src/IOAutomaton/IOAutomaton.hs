@@ -33,8 +33,8 @@ import           Data.Maybe
 --    of the SUT
 --  - validate output of the SUT against expectations (eg. play the role of an oracle)
 --
--- Here we distinguish the set of formal states of the automaton (q) and the
--- state of the model (st), the latter usually being much more complex.
+-- Here we distinguish the set of formal states of the automaton @q@ and the
+-- state of the model @a@, the latter usually being much more complex.
 class (Eq q, Eq i, Eq o, Show q, Show i, Show o) =>
       IOAutomaton a q i o | a -> q i o where
 
