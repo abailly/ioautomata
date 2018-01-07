@@ -23,7 +23,7 @@ import           Test.QuickCheck
 import           Test.QuickCheck.Monadic
 
 class (IOAutomaton a q i o, Monad m) => Interpreter m a q i o | a -> q i o where
-  interpret :: a -> i -> m (Maybe o)
+  interpret :: a -> i -> m (Maybe o, a)
   before    :: a -> m ()
   after     :: RunResult a q i o -> m ()
 
@@ -39,7 +39,7 @@ isSuccessful (RunSuccessful _ _) = True
 isSuccessful _                   = False
 
 -- | Run a single transition against interpreter
-testTrans :: (Interpreter m a q i o) => a -> (q, i, o ,q) -> m (Maybe o)
+testTrans :: (Interpreter m a q i o) => a -> (q, i, o ,q) -> m (Maybe o, a)
 testTrans a (_s, i, _o, _e) = interpret a i
 
 -- | Run a sequence of transitions against interpreter, checking the returned
@@ -57,10 +57,10 @@ testSUT a (T trans) = do
 checkSUT :: (Interpreter m a q i o) => a -> [ (q, i, o ,q) ] -> [ (q, i, o ,q) ] -> m (RunResult a q i o)
 checkSUT at  []                   acc = pure (RunSuccessful at $ T $ reverse acc)
 checkSUT at (t'@(_s,i,o,e):trans) acc = do
-  o' <- interpret at i
+  (o', a') <- interpret at i
   case o' of
     Just t  -> if t == o
-               then checkSUT (update at e) trans (t':acc)
+               then checkSUT (update a' e) trans (t':acc)
                else pure (UnexpectedOutput at t' t)
     Nothing -> pure (CannotInterpretInput at t')
 

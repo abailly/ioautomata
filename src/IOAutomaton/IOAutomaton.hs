@@ -36,7 +36,7 @@ import           Data.Maybe
 -- Here we distinguish the set of formal states of the automaton @q@ and the
 -- state of the model @a@, the latter usually being much more complex.
 class (Eq q, Eq i, Eq o, Show q, Show i, Show o) =>
-      IOAutomaton a q i o | a -> q i o where
+      IOAutomaton a q i o | a -> q i o, q i o -> a where
 
   -- ^Initial state of the automaton
   init :: a

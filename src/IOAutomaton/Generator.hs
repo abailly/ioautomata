@@ -2,7 +2,7 @@
 {-# LANGUAGE MultiParamTypeClasses  #-}
 {-# LANGUAGE UndecidableInstances   #-}
 module IOAutomaton.Generator
-  ( TransitionGenerator(..), selector, Valid, sampleTraces, validTraces, validTransitions
+  ( TransitionGenerator(..), selector, Valid, sampleTraces, validTraces, validTransitions, genTrace
   , Inputs(..))
   where
 
