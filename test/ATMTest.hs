@@ -115,6 +115,6 @@ instance Arbitrary ValidATM where
 
 prop_mockATMClientRunsAgainstMockRunner :: ValidATM -> Property
 prop_mockATMClientRunsAgainstMockRunner (ValidATM (validTransitions -> trs)) =
-    let res = (runIdentity . flip evalStateT (fmap ATM.input trs) . runMock) $ mockModel initAtm' (T [])
+    let res = (runIdentity . flip evalStateT (fmap ATM.input trs) . runMock) $ mockModel initAtm'
         msg = "result :" <> show res
     in  counterexample msg $ isSuccessful res

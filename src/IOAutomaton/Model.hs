@@ -1,6 +1,8 @@
 {-# LANGUAGE AllowAmbiguousTypes    #-}
+{-# LANGUAGE FlexibleContexts       #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
+{-# LANGUAGE ScopedTypeVariables    #-}
 {-| Provides way to check whether or not some code respects an @IOAutomaton@ model.
 
 This modules provides mainly two things:
@@ -101,16 +103,18 @@ class (Monad m) => Interactive m i o | o -> i, i -> o where
 --
 -- This is currently very simple and assumes direct request/response relationship,
 -- there is one response sent for each request.
-mockModel :: ( IOAutomaton a q i o, Interactive m i o )
+mockModel :: forall a q i o m . ( IOAutomaton a q i o, Interactive m i o )
           => a
-          -> Trace q i o
           -> m (RunResult a q i o)
-mockModel initial (T trans) = do
-  req <- request
-  case req of
-    Nothing -> pure $ RunSuccessful initial (T $ reverse trans)
-    Just i  -> do
-      let (out, newState) = action i initial
-      case out of
-        Nothing -> pure $ UnexpectedInput initial i
-        Just o  -> reply o >> mockModel newState (T $ (state initial, i , o, state newState):trans)
+mockModel initial = mockModel' initial (T [])
+  where
+    mockModel' :: a -> Trace q i o -> m (RunResult a q i o)
+    mockModel' st (T trans) = do
+      req <- request
+      case req of
+        Nothing -> pure $ RunSuccessful st (T $ reverse trans)
+        Just i  -> do
+          let (out, newState) = action i st
+          case out of
+            Nothing -> pure $ UnexpectedInput st i
+            Just o  -> reply o >> mockModel' newState (T $ (state initial, i , o, state newState):trans)
