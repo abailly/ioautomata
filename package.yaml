@@ -17,7 +17,6 @@ library:
     - directory
     - fgl
     - filepath
-    - graphviz
     - mtl
     - parsec
     - QuickCheck
@@ -29,7 +28,6 @@ library:
     - IOAutomaton.Model
   other-modules:
     - IOAutomaton.IOAutomaton
-    - IOAutomaton.Graph
   default-extensions:
     - OverloadedStrings
     - RecordWildCards
