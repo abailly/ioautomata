@@ -58,18 +58,21 @@ newtype Valid a q i o = Valid { validTransitions :: [ (q, i, o ,q) ] }
 class Inputs a i where
   inputs :: a -> [ i ]
 
-instance (A.IOAutomaton a q i o, Inputs a i) => Arbitrary (Valid a q i o) where
+instance (Show a, A.IOAutomaton a q i o, Inputs a i) => Arbitrary (Valid a q i o) where
   arbitrary = sized (genTrace A.init [] )
 
-genTrace :: (A.IOAutomaton a q i o, Inputs a i)
+genTrace :: (Show a, A.IOAutomaton a q i o, Inputs a i)
          => a -> [ (q, i, o, q) ] -> Int -> Gen (Valid a q i o)
 genTrace _        trs 0 = pure $ Valid trs
 genTrace curState trs n = do
   let ins  = inputs curState
       outs = zip ((filter (isJust . fst) . map (`A.action` curState)) ins) ins
-  ((Just out, nextState), inp)  <- elements outs
-  let tr = (A.state curState, inp, out, A.state nextState)
-  genTrace nextState (trs ++ [tr]) (n - 1)
+  res <- elements outs
+  case res of
+    ((Just out, nextState), inp)  -> do
+      let tr = (A.state curState, inp, out, A.state nextState)
+      genTrace nextState (trs ++ [tr]) (n - 1)
+    _ -> error $ "unexpected outputs: " <> show res
 
 
 validTraces :: ( A.IOAutomaton a q i o
