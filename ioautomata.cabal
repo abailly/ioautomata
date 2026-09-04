@@ -1,0 +1,73 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.39.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           ioautomata
+version:        0.1.0
+synopsis:       A library for expressing models as I/O Automata
+author:         Arnaud Bailly <arnaud.oqube@gmail.com>
+maintainer:     Arnaud Bailly <arnaud.oqube@gmail.com>
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+
+library
+  exposed-modules:
+      IOAutomaton
+      IOAutomaton.Generator
+      IOAutomaton.Model
+  other-modules:
+      IOAutomaton.IOAutomaton
+  hs-source-dirs:
+      src
+  default-extensions:
+      OverloadedStrings
+      RecordWildCards
+      ScopedTypeVariables
+      MultiParamTypeClasses
+  ghc-options: -Wall -fno-warn-orphans
+  build-depends:
+      QuickCheck
+    , base
+    , bytestring
+    , containers
+    , data-default
+    , data-reify
+    , directory
+    , fgl
+    , filepath
+    , mtl
+    , parsec
+    , random
+    , text
+  default-language: Haskell2010
+
+test-suite hunit
+  type: exitcode-stdio-1.0
+  main-is: AllTests.hs
+  other-modules:
+      ATMTest
+      ATM
+      ATM.ATM
+      ATM.Gen
+      ReifyFunctions
+      Paths_ioautomata
+  hs-source-dirs:
+      test
+      examples
+  ghc-options: -Wall -fno-warn-orphans
+  build-depends:
+      HUnit
+    , QuickCheck
+    , base
+    , containers
+    , data-reify
+    , ioautomata
+    , mtl
+    , random
+    , test-framework
+    , test-framework-hunit
+    , test-framework-quickcheck2
+  default-language: Haskell2010
